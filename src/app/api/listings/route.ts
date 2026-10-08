@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedUser } from "@/lib/auth";
 import { listingSchema } from "@/lib/schemas";
-import { getStore, listListings, upsertListing } from "@/lib/store";
+import { listListings, upsertListing } from "@/lib/store";
 
 export async function GET(request: NextRequest) {
   const search = new URL(request.url).searchParams.get("q") ?? "";

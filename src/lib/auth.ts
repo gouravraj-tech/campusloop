@@ -1,5 +1,17 @@
 import { NextRequest } from "next/server";
-import { getUserByToken } from "@/lib/store";
+import { getAdminAuth } from "@/lib/firebase-admin";
+import { getUserByToken, getUserByUid } from "@/lib/store";
+
+export async function getUserFromToken(token: string) {
+  const adminAuth = getAdminAuth();
+
+  if (adminAuth) {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    return getUserByUid(decodedToken.uid);
+  }
+
+  return getUserByToken(token);
+}
 
 export async function getAuthorizedUser(request: NextRequest) {
   const raw = request.headers.get("authorization") ?? "";
@@ -9,7 +21,7 @@ export async function getAuthorizedUser(request: NextRequest) {
     throw new Error("Unauthorized");
   }
 
-  const user = await getUserByToken(token);
+  const user = await getUserFromToken(token);
 
   if (!user) {
     throw new Error("Unauthorized");

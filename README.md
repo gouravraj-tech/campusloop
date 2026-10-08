@@ -34,7 +34,7 @@ npm install
 cp .env.example .env.local
 ```
 
-3. Fill in the Firebase and Google Books values in `.env.local`.
+3. Fill in the Firebase and Google Books values in `.env.local`. Enable the Email/Password sign-in provider in Firebase Authentication.
 
 4. Run the dev server:
 
@@ -59,6 +59,7 @@ The app expects the following configuration values:
 - `GOOGLE_BOOKS_API_KEY`
 
 For Firebase Admin, the private key must contain real newline characters after environment expansion.
+Firebase email/password sign-in is enabled when the public Firebase client values and Firebase Admin service-account values are configured. In this mode, API requests use Firebase ID tokens verified by the server. Without Firebase configuration, the app stays in local demo mode; its email-based sign-in does not verify passwords and must not be used in production.
 
 ## Project docs
 
@@ -67,4 +68,4 @@ For Firebase Admin, the private key must contain real newline characters after e
 
 ## Notes
 
-The app includes a mock local JSON-backed store so local development can continue without Firebase credentials. For production, replace the mock layer with real Firebase-backed persistence and enforce secure server-side access patterns.
+When Firebase Admin credentials are configured, marketplace profiles, listings, saved listings, conversations, and messages use Firestore. Without them, the app uses the local JSON file for development. Existing JSON data is not automatically copied to Firestore; migrate any data you need before switching a deployed environment.

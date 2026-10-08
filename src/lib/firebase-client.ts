@@ -25,8 +25,8 @@ export function getFirebaseClient() {
 
   if (!firebaseApp) {
     firebaseApp = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-    authInstance = getAuth(firebaseApp);
   }
+  authInstance = authInstance ?? getAuth(firebaseApp);
 
   return { firebaseApp, auth: authInstance };
 }
