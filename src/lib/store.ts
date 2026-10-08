@@ -248,7 +248,11 @@ export async function listListings() {
 export async function upsertListing(listing: Listing) {
   const db = firestore();
   if (db) {
-    await db.collection(COLLECTIONS.listings).doc(listing.id).set(listing);
+    const firestoreListing = { ...listing };
+    if (firestoreListing.book === undefined) {
+      delete firestoreListing.book;
+    }
+    await db.collection(COLLECTIONS.listings).doc(listing.id).set(firestoreListing);
     return listing;
   }
   const store = await getStore();

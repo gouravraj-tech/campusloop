@@ -23,6 +23,9 @@ export const POST = withAuthErrors(async (request: NextRequest) => {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid listing data." }, { status: 400 });
   }
+  if (!parsed.data.imageUrl.trim()) {
+    return NextResponse.json({ error: "A listing photo is required." }, { status: 400 });
+  }
 
   const listing = {
     id: crypto.randomUUID(),

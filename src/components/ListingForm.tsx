@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import Image from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export function ListingForm({
   const category = useWatch({ control: form.control, name: "category" });
   const condition = useWatch({ control: form.control, name: "condition" });
   const pickupLocation = useWatch({ control: form.control, name: "pickupLocation" });
+  const imageUrl = useWatch({ control: form.control, name: "imageUrl" });
 
   const handleCategoryChange = (value: string | null) => {
     if (value) {
@@ -59,13 +61,17 @@ export function ListingForm({
     }
   };
 
+  const handleSubmit = async (values: ListingFormValues) => {
+    await onSubmit(values);
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>{submitLabel}</CardTitle>
       </CardHeader>
       <CardContent>
-        <form className="space-y-5" onSubmit={form.handleSubmit((values) => onSubmit(values as ListingFormValues))}>
+        <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="title">Title</Label>
@@ -128,9 +134,29 @@ export function ListingForm({
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="imageUrl">Image URL</Label>
-              <Input id="imageUrl" type="url" {...form.register("imageUrl")} />
-              {form.formState.errors.imageUrl && <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p>}
+              <Label htmlFor="listingImage">Listing photo</Label>
+              <Input
+                id="listingImage"
+                type="url"
+                placeholder="https://example.com/photo.jpg"
+                {...form.register("imageUrl")}
+              />
+              {form.formState.errors.imageUrl && (
+                <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p>
+              )}
+              {imageUrl && (
+                <div className="relative overflow-hidden rounded-2xl border border-border bg-muted">
+                  <Image
+                    src={imageUrl}
+                    alt="Listing photo preview"
+                    width={1200}
+                    height={800}
+                    unoptimized
+                    className="h-56 w-full object-contain sm:h-72"
+                  />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">Paste a direct link to a photo of the actual item.</p>
             </div>
 
             <div className="space-y-2 md:col-span-2">

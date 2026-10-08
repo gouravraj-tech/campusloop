@@ -21,7 +21,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ books: [] });
   }
 
-  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5`, {
+  const searchParams = new URLSearchParams({ q: query, maxResults: "5" });
+  const apiKey = process.env.GOOGLE_BOOKS_API_KEY;
+  if (apiKey) {
+    searchParams.set("key", apiKey);
+  }
+
+  const response = await fetch(`https://www.googleapis.com/books/v1/volumes?${searchParams}`, {
     headers: { Accept: "application/json" },
   });
   if (!response.ok) {

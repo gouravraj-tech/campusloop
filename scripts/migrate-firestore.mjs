@@ -5,13 +5,6 @@ import { getFirestore } from "firebase-admin/firestore";
 
 const storePath = path.join(process.cwd(), "data", "campusloop.json");
 const applyChanges = process.argv.includes("--apply");
-const projectId = process.env.FIREBASE_PROJECT_ID;
-const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
-
-if (!projectId || !clientEmail || !privateKey) {
-  throw new Error("Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY before migrating.");
-}
 
 const rawStore = await fs.readFile(storePath, "utf8");
 const store = JSON.parse(rawStore);
@@ -29,38 +22,44 @@ if (!applyChanges) {
   process.exit(0);
 }
 
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+
+if (!projectId || !clientEmail || !privateKey) {
+  throw new Error("Set FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY before migrating.");
+}
+
 const app = getApps()[0] ?? initializeApp({
   credential: cert({ projectId, clientEmail, privateKey }),
   projectId,
 });
 const db = getFirestore(app);
-const writes = [];
+const writer = db.bulkWriter();
 
 for (const user of store.users ?? []) {
-  const { token: _token, ...profile } = user;
-  writes.push(db.collection("users").doc(user.uid).set(profile));
+  const profile = { ...user };
+  delete profile.token;
+  writer.set(db.collection("users").doc(user.uid), profile);
 }
 
 for (const listing of store.listings ?? []) {
-  writes.push(db.collection("listings").doc(listing.id).set(listing));
+  writer.set(db.collection("listings").doc(listing.id), listing);
 }
 
 for (const saved of store.saved ?? []) {
   const id = saved.id || `${saved.userId}_${saved.listingId}`;
-  writes.push(db.collection("savedListings").doc(id).set({ ...saved, id }));
+  writer.set(db.collection("savedListings").doc(id), { ...saved, id });
 }
 
 for (const conversation of store.conversations ?? []) {
   const { messages = [], ...summary } = conversation;
   const conversationRef = db.collection("conversations").doc(conversation.id);
-  writes.push(conversationRef.set(summary));
+  writer.set(conversationRef, summary);
   for (const message of messages) {
-    writes.push(conversationRef.collection("messages").doc(message.id).set(message));
+    writer.set(conversationRef.collection("messages").doc(message.id), message);
   }
 }
 
-for (let offset = 0; offset < writes.length; offset += 100) {
-  await Promise.all(writes.slice(offset, offset + 100));
-}
-
-console.log(`Imported ${writes.length} Firestore documents into project ${projectId}. User tokens were omitted.`);
+await writer.close();
+console.log(`Imported ${Object.values(counts).reduce((total, count) => total + count, 0)} Firestore documents into project ${projectId}. User tokens were omitted.`);

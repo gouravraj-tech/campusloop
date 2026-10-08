@@ -14,19 +14,19 @@ export type FilterBarProps = {
 
 export function FilterBar({ search, category, condition, onSearchChange, onCategoryChange, onConditionChange }: FilterBarProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border bg-white p-4 shadow-sm md:flex-row md:items-center">
+    <div className="flex flex-col gap-3 rounded-[1.4rem] border border-border/70 bg-card/90 p-3 shadow-[0_16px_38px_-28px_oklch(0.25_0.06_278_/_55%)] sm:p-4 md:flex-row md:items-center">
       <div className="relative flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary" />
         <Input
           value={search}
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Search listings or ISBN"
-          className="pl-9"
+          className="h-11 rounded-xl border-border/70 bg-background pl-10 shadow-none focus-visible:bg-card"
         />
       </div>
 
       <Select value={category} onValueChange={(value) => onCategoryChange(value ?? "All")}>
-        <SelectTrigger className="w-full md:max-w-48">
+        <SelectTrigger className="h-11 w-full rounded-xl border-border/70 bg-background shadow-none md:max-w-48">
           <SelectValue placeholder="Category" />
         </SelectTrigger>
         <SelectContent>
@@ -38,7 +38,7 @@ export function FilterBar({ search, category, condition, onSearchChange, onCateg
       </Select>
 
       <Select value={condition} onValueChange={(value) => onConditionChange(value ?? "All")}>
-        <SelectTrigger className="w-full md:max-w-48">
+        <SelectTrigger className="h-11 w-full rounded-xl border-border/70 bg-background shadow-none md:max-w-48">
           <SelectValue placeholder="Condition" />
         </SelectTrigger>
         <SelectContent>

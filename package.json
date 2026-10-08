@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:firestore": "node --env-file-if-exists=.env.local scripts/migrate-firestore.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

@@ -51,7 +51,6 @@ The app expects the following configuration values:
 - `NEXT_PUBLIC_FIREBASE_API_KEY`
 - `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
 - `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
-- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
 - `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `FIREBASE_CLIENT_EMAIL`
@@ -69,3 +68,23 @@ Firebase email/password sign-in is enabled when the public Firebase client value
 ## Notes
 
 When Firebase Admin credentials are configured, marketplace profiles, listings, saved listings, conversations, and messages use Firestore. Without them, the app uses the local JSON file for development. Existing JSON data is not automatically copied to Firestore; migrate any data you need before switching a deployed environment.
+
+### Listing photos
+
+Listings use direct image URLs, so Firebase Storage and a billing-plan upgrade are not required. Use a public, direct link to an image that can be opened without signing in.
+
+### Importing local JSON data to Firestore
+
+Set `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, and `FIREBASE_PRIVATE_KEY` in `.env.local`, then preview the import:
+
+```bash
+npm run migrate:firestore
+```
+
+The default is a dry run. Review the record counts and target project, then add `-- --apply` to write records:
+
+```bash
+npm run migrate:firestore -- --apply
+```
+
+The importer uses the existing document IDs, so running it again updates the same documents. It omits local auth tokens. Back up the target Firestore project before applying; the importer does not delete unrelated Firestore data.
