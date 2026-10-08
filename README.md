@@ -55,6 +55,9 @@ The app expects the following configuration values:
 - `NEXT_PUBLIC_FIREBASE_APP_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY`
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
 - `GOOGLE_BOOKS_API_KEY`
 
 For Firebase Admin, the private key must contain real newline characters after environment expansion.
@@ -71,7 +74,9 @@ When Firebase Admin credentials are configured, marketplace profiles, listings, 
 
 ### Listing photos
 
-Listings use direct image URLs, so Firebase Storage and a billing-plan upgrade are not required. Use a public, direct link to an image that can be opened without signing in.
+Listing photos are selected from a phone gallery or computer using the listing form and stored in Cloudinary. Uploads are limited to 8 MB.
+
+To enable uploads, create a Cloudinary account and copy the Cloud name, API key, and API secret from the Cloudinary dashboard into `.env.local` using the variable names above. Add the same three values to the Vercel project's environment variables for Production and Preview, then redeploy. Keep `CLOUDINARY_API_SECRET` private; it is used only by the server to sign upload requests.
 
 ### Importing local JSON data to Firestore
 
