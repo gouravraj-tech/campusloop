@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +37,9 @@ export function ListingForm({
       isbn: defaultValues?.isbn ?? "",
     },
   });
+  const category = useWatch({ control: form.control, name: "category" });
+  const condition = useWatch({ control: form.control, name: "condition" });
+  const pickupLocation = useWatch({ control: form.control, name: "pickupLocation" });
 
   const handleCategoryChange = (value: string | null) => {
     if (value) {
@@ -84,7 +87,7 @@ export function ListingForm({
 
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={form.watch("category")} onValueChange={handleCategoryChange}>
+              <Select value={category} onValueChange={handleCategoryChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -98,7 +101,7 @@ export function ListingForm({
 
             <div className="space-y-2">
               <Label>Condition</Label>
-              <Select value={form.watch("condition")} onValueChange={handleConditionChange}>
+              <Select value={condition} onValueChange={handleConditionChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select condition" />
                 </SelectTrigger>
@@ -112,7 +115,7 @@ export function ListingForm({
 
             <div className="space-y-2">
               <Label>Pickup location</Label>
-              <Select value={form.watch("pickupLocation")} onValueChange={handlePickupLocationChange}>
+              <Select value={pickupLocation} onValueChange={handlePickupLocationChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select pickup location" />
                 </SelectTrigger>

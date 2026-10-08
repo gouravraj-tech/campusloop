@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
+import useSWR from "swr";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import type { Listing } from "@/lib/store";
+
+const fetchListing = async (path: string) => (await apiClient<{ listing: Listing }>(path)).listing;
 
 export default function ListingDetailPage() {
   return (
@@ -22,36 +27,23 @@ function ListingDetailPageContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const [listing, setListing] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: listing, error: listingError, isLoading: loading, mutate: reloadListing } = useSWR(
+    params.id ? `/api/listings/${params.id}` : null,
+    fetchListing,
+  );
   const [message, setMessage] = useState("");
-  const [saved, setSaved] = useState(false);
 
-  const loadListing = async () => {
-    try {
-      const result = await apiClient<{ listing: any }>(`/api/listings/${params.id}`);
-      setListing(result.listing);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Unable to load listing");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data: savedListings, mutate: mutateSaved } = useSWR(
+    user && listing ? ["saved-listings", user.uid, user.token] as [string, string, string] : null,
+    async ([, , token]) => (await apiClient<{ listings: Array<{ id: string }> }>("/api/saved", {}, token)).listings,
+  );
+  const saved = savedListings?.some((item) => item.id === listing?.id) ?? false;
 
   useEffect(() => {
-    if (params?.id) {
-      void loadListing();
+    if (listingError) {
+      toast.error(listingError instanceof Error ? listingError.message : "Unable to load listing");
     }
-  }, [params?.id]);
-
-  useEffect(() => {
-    if (!user || !listing) return;
-
-    void (async () => {
-      const result = await apiClient<{ listings: Array<{ id: string }> }> ("/api/saved", {}, user.token);
-      setSaved(result.listings.some((item) => item.id === listing.id));
-    })();
-  }, [listing?.id, user]);
+  }, [listingError]);
 
   if (loading) return <div className="py-10 text-center">Loading listing...</div>;
   if (!listing) return <div className="py-10 text-center">Listing not found.</div>;
@@ -80,7 +72,7 @@ function ListingDetailPageContent() {
     if (!user) return;
     await apiClient(`/api/listings/${listing.id}/sold`, { method: "POST" }, user.token);
     toast.success("Listing marked as sold.");
-    await loadListing();
+    await reloadListing();
   };
 
   const handleDelete = async () => {
@@ -99,13 +91,12 @@ function ListingDetailPageContent() {
     try {
       if (saved) {
         await apiClient(`/api/saved/${listing.id}`, { method: "DELETE" }, user.token);
-        setSaved(false);
         toast.success("Removed from saved listings");
       } else {
         await apiClient(`/api/saved/${listing.id}`, { method: "POST" }, user.token);
-        setSaved(true);
         toast.success("Saved listing");
       }
+      await mutateSaved();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Unable to update saved listing");
     }
@@ -115,7 +106,7 @@ function ListingDetailPageContent() {
     <div className="space-y-6 py-6">
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <Card>
-          <img src={listing.imageUrl} alt={listing.title} className="h-[420px] w-full object-cover" />
+          <Image src={listing.imageUrl} alt={listing.title} width={1200} height={840} unoptimized className="h-[420px] w-full object-cover" />
           <CardContent className="space-y-4 p-6">
             <div className="flex items-start justify-between gap-4">
               <div>

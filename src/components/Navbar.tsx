@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Heart, LayoutGrid, LogOut, MessageSquareText, Plus, User } from "lucide-react";
+import { Heart, LayoutGrid, LogOut, MessageSquareText, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { APP_NAME } from "@/lib/constants";
 import { Button } from "@/components/ui/button";

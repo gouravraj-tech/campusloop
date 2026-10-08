@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedUser } from "@/lib/auth";
+import { withAuthErrors } from "@/lib/api-route";
 import { messageSchema } from "@/lib/schemas";
 import { appendMessage, createOrGetConversation, getListingById } from "@/lib/store";
 
-export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export const POST = withAuthErrors(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
   const { id } = await context.params;
   const user = await getAuthorizedUser(request);
   const listing = await getListingById(id);
 
   if (!listing) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+  if (user.uid === listing.sellerId) {
+    return NextResponse.json({ error: "You cannot message yourself about your listing." }, { status: 403 });
   }
 
   const body = await request.json();
@@ -46,4 +50,4 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
 
   const updated = await appendMessage(conversation.id, message);
   return NextResponse.json({ conversation: updated });
-}
+});

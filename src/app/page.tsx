@@ -3,9 +3,8 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { FilterBar } from "@/components/FilterBar";
-import { ListingCard, type ListingCardProps } from "@/components/ListingCard";
+import { ListingCard } from "@/components/ListingCard";
 import { EmptyState } from "@/components/EmptyState";
 import { ErrorState } from "@/components/ErrorState";
 import { ListingSkeleton } from "@/components/ListingSkeleton";

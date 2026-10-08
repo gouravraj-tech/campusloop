@@ -62,15 +62,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return unsubscribe;
     }
 
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      try {
-        setUser(JSON.parse(raw) as CampusUser);
-      } catch {
-        window.localStorage.removeItem(STORAGE_KEY);
+    let active = true;
+    Promise.resolve().then(() => {
+      if (!active) return;
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+          setUser(JSON.parse(raw) as CampusUser);
+        } catch {
+          window.localStorage.removeItem(STORAGE_KEY);
+        }
       }
-    }
-    setReady(true);
+      setReady(true);
+    });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const saveUser = (nextUser: CampusUser | null) => {

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assertParticipant, getAuthorizedUser } from "@/lib/auth";
+import { withAuthErrors } from "@/lib/api-route";
 import { messageSchema } from "@/lib/schemas";
 import { appendMessage, getConversationById } from "@/lib/store";
 
-export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export const POST = withAuthErrors(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
   const { id } = await context.params;
   const user = await getAuthorizedUser(request);
   const conversation = await getConversationById(id);
@@ -28,4 +29,4 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
   });
 
   return NextResponse.json({ conversation: updated });
-}
+});

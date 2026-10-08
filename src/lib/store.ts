@@ -394,7 +394,20 @@ export async function createOrGetConversation(payload: Omit<Conversation, "messa
     await db.runTransaction(async (transaction) => {
       const existing = await transaction.get(conversationRef);
       if (!existing.exists) {
-        const { messages, ...summary } = conversation;
+        const summary: Omit<Conversation, "messages"> = {
+          id: conversation.id,
+          listingId: conversation.listingId,
+          listingTitle: conversation.listingTitle,
+          listingImageUrl: conversation.listingImageUrl,
+          sellerId: conversation.sellerId,
+          sellerName: conversation.sellerName,
+          buyerId: conversation.buyerId,
+          buyerName: conversation.buyerName,
+          lastMessage: conversation.lastMessage,
+          lastMessageAt: conversation.lastMessageAt,
+          createdAt: conversation.createdAt,
+          unreadFor: conversation.unreadFor,
+        };
         transaction.create(conversationRef, summary);
       }
     });

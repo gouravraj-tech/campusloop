@@ -2,10 +2,11 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ListingForm } from "@/components/ListingForm";
+import { ListingForm, type ListingFormValues } from "@/components/ListingForm";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Listing } from "@/lib/store";
 
 export default function EditListingPage() {
   return (
@@ -19,13 +20,16 @@ function EditListingPageContent() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const [initialValues, setInitialValues] = useState<any>(null);
+  const [initialValues, setInitialValues] = useState<Partial<ListingFormValues> | null>(null);
 
   useEffect(() => {
     if (!params?.id) return;
     void (async () => {
-      const result = await apiClient<{ listing: any }>(`/api/listings/${params.id}`);
-      setInitialValues(result.listing);
+      const result = await apiClient<{ listing: Listing }>(`/api/listings/${params.id}`);
+      setInitialValues({
+        ...result.listing,
+        isbn: result.listing.book?.isbn,
+      });
     })();
   }, [params?.id]);
 

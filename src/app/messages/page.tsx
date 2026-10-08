@@ -1,24 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/EmptyState";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Conversation } from "@/lib/store";
+
+const fetchConversations = async ([path, token]: [string, string]) =>
+  (await apiClient<{ conversations: Conversation[] }>(path, {}, token)).conversations;
 
 export default function MessagesPage() {
   const { user } = useAuth();
-  const [threads, setThreads] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-    void (async () => {
-      const result = await apiClient<{ conversations: any[] }>("/api/conversations", {}, user.token);
-      setThreads(result.conversations);
-    })();
-  }, [user]);
+  const { data: threads = [] } = useSWR(
+    user ? ["/api/conversations", user.token] as [string, string] : null,
+    fetchConversations,
+  );
 
   return (
     <ProtectedRoute>

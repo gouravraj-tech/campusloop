@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Heart, MapPin, MessageSquareText, Tag } from "lucide-react";
+import { MapPin, MessageSquareText, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { SoldBadge } from "@/components/SoldBadge";
@@ -20,7 +21,7 @@ export function ListingCard({ id, title, description, price, category, pickupLoc
   return (
     <Card className="overflow-hidden">
       <div className="relative">
-        <img src={imageUrl} alt={title} className="h-52 w-full object-cover" />
+        <Image src={imageUrl} alt={title} width={600} height={400} unoptimized className="h-52 w-full object-cover" />
         <div className="absolute right-3 top-3">
           {status === "sold" ? <SoldBadge /> : <Badge variant="secondary">Available</Badge>}
         </div>

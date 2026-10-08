@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedUser } from "@/lib/auth";
+import { withAuthErrors } from "@/lib/api-route";
 import { listingSchema } from "@/lib/schemas";
 import { listListings, upsertListing } from "@/lib/store";
 
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
   return NextResponse.json({ listings: filtered });
 }
 
-export async function POST(request: NextRequest) {
+export const POST = withAuthErrors(async (request: NextRequest) => {
   const user = await getAuthorizedUser(request);
   const body = await request.json();
   const parsed = listingSchema.safeParse(body);
@@ -49,4 +50,4 @@ export async function POST(request: NextRequest) {
 
   await upsertListing(listing);
   return NextResponse.json({ listing }, { status: 201 });
-}
+});

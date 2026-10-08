@@ -1,23 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { ListingCard } from "@/components/ListingCard";
 import { EmptyState } from "@/components/EmptyState";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Listing } from "@/lib/store";
+
+const fetchSavedListings = async ([path, token]: [string, string]) =>
+  (await apiClient<{ listings: Array<Listing & { savedAt: string }> }>(path, {}, token)).listings;
 
 export default function SavedPage() {
   const { user } = useAuth();
-  const [listings, setListings] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (!user) return;
-    void (async () => {
-      const result = await apiClient<{ listings: any[] }>("/api/saved", {}, user.token);
-      setListings(result.listings);
-    })();
-  }, [user]);
+  const { data: listings = [] } = useSWR(
+    user ? ["/api/saved", user.token] as [string, string] : null,
+    fetchSavedListings,
+  );
 
   return (
     <ProtectedRoute>

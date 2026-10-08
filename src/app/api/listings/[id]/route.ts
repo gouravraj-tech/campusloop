@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAuthorizedUser, assertOwner } from "@/lib/auth";
+import { assertOwner } from "@/lib/auth";
+import { withAuthErrors } from "@/lib/api-route";
 import { getListingById, upsertListing, deleteListing } from "@/lib/store";
 import { listingSchema } from "@/lib/schemas";
 
@@ -14,7 +15,7 @@ export async function GET(_: NextRequest, context: { params: Promise<{ id: strin
   return NextResponse.json({ listing });
 }
 
-export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export const PATCH = withAuthErrors(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
   const { id } = await context.params;
   const listing = await getListingById(id);
 
@@ -47,9 +48,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
 
   await upsertListing(updated);
   return NextResponse.json({ listing: updated, user: { uid: user.uid, name: user.name } });
-}
+});
 
-export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export const DELETE = withAuthErrors(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
   const { id } = await context.params;
   const listing = await getListingById(id);
 
@@ -60,4 +61,4 @@ export async function DELETE(request: NextRequest, context: { params: Promise<{ 
   await assertOwner(request, listing.sellerId);
   await deleteListing(id);
   return NextResponse.json({ success: true });
-}
+});

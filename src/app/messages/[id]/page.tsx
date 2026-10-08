@@ -1,6 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,10 @@ import { ThreadView } from "@/components/ThreadView";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { apiClient } from "@/lib/api-client";
 import { useAuth } from "@/hooks/useAuth";
+import type { Conversation } from "@/lib/store";
+
+const fetchConversation = async ([path, token]: [string, string]) =>
+  (await apiClient<{ conversation: Conversation }>(path, {}, token)).conversation;
 
 export default function MessageThreadPage() {
   return (
@@ -21,20 +26,11 @@ export default function MessageThreadPage() {
 function MessageThreadPageContent() {
   const params = useParams<{ id: string }>();
   const { user } = useAuth();
-  const [thread, setThread] = useState<any>(null);
+  const { data: thread, mutate: reloadThread } = useSWR(
+    user ? [`/api/conversations/${params.id}`, user.token] as [string, string] : null,
+    fetchConversation,
+  );
   const [text, setText] = useState("");
-
-  const loadThread = async () => {
-    if (!user) return;
-    const result = await apiClient<{ conversation: any }>(`/api/conversations/${params.id}`, {}, user.token);
-    setThread(result.conversation);
-  };
-
-  useEffect(() => {
-    if (params?.id && user) {
-      void loadThread();
-    }
-  }, [params?.id, user]);
 
   if (!user) return null;
 
@@ -45,7 +41,7 @@ function MessageThreadPageContent() {
       body: JSON.stringify({ text }),
     }, user.token);
     setText("");
-    await loadThread();
+    await reloadThread();
   };
 
   return (

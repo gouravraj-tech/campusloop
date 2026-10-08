@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthorizedUser, assertParticipant } from "@/lib/auth";
+import { withAuthErrors } from "@/lib/api-route";
 import { getConversationById } from "@/lib/store";
 
-export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+export const GET = withAuthErrors(async (request: NextRequest, context: { params: Promise<{ id: string }> }) => {
   const { id } = await context.params;
   const user = await getAuthorizedUser(request);
   const conversation = await getConversationById(id);
@@ -13,4 +14,4 @@ export async function GET(request: NextRequest, context: { params: Promise<{ id:
 
   await assertParticipant(request, conversation.buyerId, conversation.sellerId);
   return NextResponse.json({ conversation, user });
-}
+});

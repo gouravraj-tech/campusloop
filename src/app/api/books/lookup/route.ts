@@ -1,5 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
+type GoogleBooksVolume = {
+  id?: string;
+  volumeInfo?: {
+    title?: string;
+    authors?: string[];
+    publisher?: string;
+    imageLinks?: { thumbnail?: string };
+    industryIdentifiers?: Array<{ identifier?: string }>;
+  };
+};
+
+type GoogleBooksResponse = {
+  items?: GoogleBooksVolume[];
+};
+
 export async function GET(request: NextRequest) {
   const query = new URL(request.url).searchParams.get("q") ?? "";
   if (!query) {
@@ -9,9 +24,12 @@ export async function GET(request: NextRequest) {
   const response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=5`, {
     headers: { Accept: "application/json" },
   });
-  const data = await response.json();
-  const books = (data.items ?? []).map((item: any) => ({
-    id: item.id,
+  if (!response.ok) {
+    return NextResponse.json({ error: "Unable to look up books right now." }, { status: 502 });
+  }
+  const data = await response.json() as GoogleBooksResponse;
+  const books = (data.items ?? []).map((item) => ({
+    id: item.id ?? "",
     title: item.volumeInfo?.title ?? "Untitled",
     authors: item.volumeInfo?.authors ?? [],
     publisher: item.volumeInfo?.publisher ?? "Unknown",
