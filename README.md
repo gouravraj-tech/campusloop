@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CampusLoop
 
-## Getting Started
+CampusLoop is a Next.js + TypeScript campus marketplace for students to buy, sell, save, and message about items across campus.
 
-First, run the development server:
+## Features
+
+- Browse listings by category and condition
+- Create, edit, and manage listings
+- Save items for later
+- View listing details and seller info
+- Send inquiries and maintain message threads
+- Protected routes for authenticated flows
+
+## Tech stack
+
+- Next.js 16 App Router
+- TypeScript
+- Tailwind CSS
+- React Hook Form + Zod
+- Firebase client/admin SDK
+- SWR
+
+## Getting started
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Copy the environment template:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Fill in the Firebase and Google Books values in `.env.local`.
+
+4. Run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open http://localhost:3000 in the browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The app expects the following configuration values:
 
-## Learn More
+- `NEXT_PUBLIC_FIREBASE_API_KEY`
+- `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`
+- `NEXT_PUBLIC_FIREBASE_PROJECT_ID`
+- `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`
+- `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`
+- `NEXT_PUBLIC_FIREBASE_APP_ID`
+- `FIREBASE_CLIENT_EMAIL`
+- `FIREBASE_PRIVATE_KEY`
+- `GOOGLE_BOOKS_API_KEY`
 
-To learn more about Next.js, take a look at the following resources:
+For Firebase Admin, the private key must contain real newline characters after environment expansion.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project docs
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [docs/PROJECT_OVERVIEW.md](./docs/PROJECT_OVERVIEW.md)
+- [docs/AI-USAGE.md](./docs/AI-USAGE.md)
 
-## Deploy on Vercel
+## Notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The app includes a mock local JSON-backed store so local development can continue without Firebase credentials. For production, replace the mock layer with real Firebase-backed persistence and enforce secure server-side access patterns.

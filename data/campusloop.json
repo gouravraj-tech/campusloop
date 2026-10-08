@@ -1,0 +1,42 @@
+{
+  "users": [
+    {
+      "uid": "demo-user",
+      "name": "Aarav Sharma",
+      "email": "aarav@student.campus.edu",
+      "college": "School of Engineering",
+      "token": "demo-token",
+      "createdAt": "2026-10-08T06:45:20.926Z"
+    }
+  ],
+  "listings": [
+    {
+      "id": "listing-demo-1",
+      "title": "Data Structures Handbook",
+      "description": "Used textbook for CS101, covers arrays, stacks, queues and trees. Good condition.",
+      "price": 399,
+      "category": "Books",
+      "condition": "Good",
+      "pickupLocation": "Main Library",
+      "imageUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=900&q=80",
+      "status": "available",
+      "sellerId": "demo-user",
+      "sellerName": "Aarav Sharma",
+      "college": "School of Engineering",
+      "createdAt": "2026-10-08T06:45:20.926Z",
+      "updatedAt": "2026-10-08T06:45:20.926Z",
+      "book": {
+        "isbn": "9780132350884",
+        "title": "Data Structures Handbook",
+        "authors": [
+          "Aarav Sharma"
+        ],
+        "publisher": "Campus Press",
+        "coverUrl": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80"
+      },
+      "searchText": "data structures handbook used textbook cs101 arrays stacks queues trees"
+    }
+  ],
+  "saved": [],
+  "conversations": []
+}

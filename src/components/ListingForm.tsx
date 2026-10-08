@@ -1,0 +1,146 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { CATEGORIES, CONDITIONS, PICKUP_LOCATIONS } from "@/lib/constants";
+import { listingSchema } from "@/lib/schemas";
+
+export type ListingFormValues = z.infer<typeof listingSchema>;
+
+export function ListingForm({
+  defaultValues,
+  onSubmit,
+  submitLabel,
+}: {
+  defaultValues?: Partial<ListingFormValues>;
+  onSubmit: (values: ListingFormValues) => Promise<void> | void;
+  submitLabel: string;
+}) {
+  const form = useForm<ListingFormValues>({
+    resolver: zodResolver(listingSchema),
+    defaultValues: {
+      title: defaultValues?.title ?? "",
+      description: defaultValues?.description ?? "",
+      price: Number(defaultValues?.price ?? 0),
+      category: (defaultValues?.category as ListingFormValues["category"]) ?? "Books",
+      condition: (defaultValues?.condition as ListingFormValues["condition"]) ?? "Good",
+      pickupLocation: defaultValues?.pickupLocation ?? PICKUP_LOCATIONS[0],
+      imageUrl: defaultValues?.imageUrl ?? "",
+      status: defaultValues?.status ?? "available",
+      isbn: defaultValues?.isbn ?? "",
+    },
+  });
+
+  const handleCategoryChange = (value: string | null) => {
+    if (value) {
+      form.setValue("category", value as ListingFormValues["category"], { shouldValidate: true });
+    }
+  };
+
+  const handleConditionChange = (value: string | null) => {
+    if (value) {
+      form.setValue("condition", value as ListingFormValues["condition"], { shouldValidate: true });
+    }
+  };
+
+  const handlePickupLocationChange = (value: string | null) => {
+    if (value) {
+      form.setValue("pickupLocation", value, { shouldValidate: true });
+    }
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{submitLabel}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form className="space-y-5" onSubmit={form.handleSubmit((values) => onSubmit(values as ListingFormValues))}>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" {...form.register("title")} />
+              {form.formState.errors.title && <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>}
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea id="description" {...form.register("description")} />
+              {form.formState.errors.description && <p className="text-sm text-destructive">{form.formState.errors.description.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="price">Price (₹)</Label>
+              <Input id="price" type="number" {...form.register("price", { valueAsNumber: true })} />
+              {form.formState.errors.price && <p className="text-sm text-destructive">{form.formState.errors.price.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={form.watch("category")} onValueChange={handleCategoryChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((item) => (
+                    <SelectItem key={item} value={item}>{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Condition</Label>
+              <Select value={form.watch("condition")} onValueChange={handleConditionChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CONDITIONS.map((item) => (
+                    <SelectItem key={item} value={item}>{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Pickup location</Label>
+              <Select value={form.watch("pickupLocation")} onValueChange={handlePickupLocationChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select pickup location" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PICKUP_LOCATIONS.map((item) => (
+                    <SelectItem key={item} value={item}>{item}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="imageUrl">Image URL</Label>
+              <Input id="imageUrl" type="url" {...form.register("imageUrl")} />
+              {form.formState.errors.imageUrl && <p className="text-sm text-destructive">{form.formState.errors.imageUrl.message}</p>}
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <Label htmlFor="isbn">ISBN (optional)</Label>
+              <Input id="isbn" {...form.register("isbn")} />
+            </div>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? "Saving..." : submitLabel}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
